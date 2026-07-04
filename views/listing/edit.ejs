@@ -27,6 +27,18 @@
                         <label for="image" class="form-label">Upload Listing Image</label>
                         <input type="file" name="listing[image]" placeholder="Image URL" class="form-control">
                     </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category:</label>
+                        <select name="listing[category]" id="category" class="form-select form-control" required>
+                            <% const categories = ["mountains", "rooms", "resturant", "house", "hotel", "iconic cities", "castles", "amazing pool", "camping", "farms", "arctic", "domes", "ships", "others"]; %>
+                            <% for (let category of categories) { %>
+                                <option value="<%= category %>" <%= listing.category === category ? "selected" : "" %>>
+                                    <%= category.replace(/\b\w/g, char => char.toUpperCase()) %>
+                                </option>
+                            <% } %>
+                        </select>
+                        <div class="invalid-feedback">Please select a category</div>
+                    </div>
                     <div class="row">
                         <div class="mb-3 col-md-4">
                             <label for="price" class="form-label">Price:</label>

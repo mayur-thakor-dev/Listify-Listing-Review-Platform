@@ -56,7 +56,7 @@ const listingSchema = new Schema({
       "others"
     ],
   },
-});
+}, { timestamps: true });
 
 // ✅ Add this line to enable geospatial queries
 listingSchema.index({ geometry: "2dsphere" });  // ✅ Correct field name

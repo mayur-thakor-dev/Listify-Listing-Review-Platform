@@ -17,17 +17,18 @@
   })
 })()
 
-// display taxes button 
-            let switchText = document.getElementById("flexSwitchCheckReverse");
-            switchText.addEventListener("click", () => {
+// display taxes button
+const switchText = document.getElementById("flexSwitchCheckReverse");
+if (switchText) {
+  switchText.addEventListener("click", () => {
 
-                let textInfo = document.getElementsByClassName("text-info");
-                console.log(textInfo);
-                for (info of textInfo) {
-                    if (info.style.display != "inline") {
-                        info.style.display = "inline";
-                    } else {
-                        info.style.display = "none";
-                    }
-                }
-            })
+    const textInfo = document.getElementsByClassName("text-info");
+    for (const info of textInfo) {
+      if (info.style.display != "inline") {
+        info.style.display = "inline";
+      } else {
+        info.style.display = "none";
+      }
+    }
+  })
+}

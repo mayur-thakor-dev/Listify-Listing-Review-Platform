@@ -19,11 +19,16 @@ router
   .get(wrapAsync(listingController.index)) // Index route for listing
   .post(
     isLoggedIn,
-    validateListing,
     upload.single("listing[image]"),
+    validateListing,
     getCoordinates,
     wrapAsync(listingController.createListing)
   ); // Create listing
+
+router.get("/search", wrapAsync(listingController.index));
+router.get("/category/:category", (req, res) => {
+  res.redirect(`/listings?category=${encodeURIComponent(req.params.category)}`);
+});
 
 // New listing form
 router.get("/new", isLoggedIn, listingController.renderNewForm);
@@ -37,6 +42,7 @@ router
     isOwner,
     upload.single("listing[image]"),
     validateListing,
+    getCoordinates,
     wrapAsync(listingController.updateListing)
   )
   .delete(isLoggedIn, isOwner, wrapAsync(listingController.destroyListing)); // Delete listing

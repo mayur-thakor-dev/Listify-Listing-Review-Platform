@@ -23,7 +23,7 @@
       <div class="navbar-nav search">
         <!-- <input class="form-control mr-sm-2 search-inp" type="search" placeholder="Search Destination" aria-label="Search">
       <button type="button" class="btn btn-outline-danger my-2 my-sm-0 search-btn"><i class="fa-solid fa-magnifying-glass search-glass"></i>Search</button> -->
-        <form method="GET" action="/listings/search" class="d-flex align-items-center">
+        <form method="GET" action="/listings" class="d-flex align-items-center">
           <div>
             <input type="search" name="q" class="form-control mr-sm-2 search-inp" placeholder="Search Destination">
           </div>
@@ -36,7 +36,7 @@
       </div>
       <div class="navbar-nav ms-auto">
         <a class="nav-link" href="/listings/new">Host your home</a>
-        <% if(!currUser) { %>
+        <% if(typeof currUser === 'undefined' || !currUser) { %>
           <a class="nav-link" href="/signup"><b>Sign Up</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>
 

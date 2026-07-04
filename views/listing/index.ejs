@@ -1,134 +1,171 @@
 <% layout("/layouts/boilerplate.ejs") %>
+<% const selectedCategory = filters && filters.category ? filters.category : "all"; %>
+<% const selectedSort = filters && filters.sort ? filters.sort : ""; %>
+<% const searchValue = filters && filters.q ? filters.q : ""; %>
+<% const minValue = filters && filters.minPrice ? filters.minPrice : ""; %>
+<% const maxValue = filters && filters.maxPrice ? filters.maxPrice : ""; %>
 
-    <body>
-        <!-- Collapse Button -->
-        <!-- Collapse Button -->
-        <button class="btn btn-primary toggle-btn" type="button" data-bs-toggle="collapse"
-            data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-            Toggle Filters
+<section class="explore-header">
+    <div>
+        <p class="section-kicker">Explore stays</p>
+        <h1>Find places that fit your trip</h1>
+    </div>
+    <a href="/listings/new" class="btn btn-dark">
+        <i class="fa-solid fa-plus"></i>
+        Add Listing
+    </a>
+</section>
+
+<section class="listing-toolbar">
+    <form method="GET" action="/listings" class="filter-form">
+        <div class="filter-field filter-search">
+            <label for="q">Destination</label>
+            <input type="search" name="q" id="q" value="<%= searchValue %>" placeholder="Search city, stay, category">
+        </div>
+
+        <div class="filter-field">
+            <label for="category">Category</label>
+            <select name="category" id="category">
+                <% const categories = [
+                    ["all", "All"],
+                    ["rooms", "Rooms"],
+                    ["hotel", "Hotel"],
+                    ["house", "House"],
+                    ["resturant", "Restaurant"],
+                    ["mountains", "Mountains"],
+                    ["iconic cities", "Iconic Cities"],
+                    ["castles", "Castles"],
+                    ["amazing pool", "Pool"],
+                    ["camping", "Camping"],
+                    ["farms", "Farms"],
+                    ["arctic", "Arctic"],
+                    ["domes", "Domes"],
+                    ["ships", "Ships"],
+                    ["others", "Others"]
+                ]; %>
+                <% for (let item of categories) { %>
+                    <option value="<%= item[0] %>" <%= selectedCategory === item[0] ? "selected" : "" %>>
+                        <%= item[1] %>
+                    </option>
+                <% } %>
+            </select>
+        </div>
+
+        <div class="filter-field compact">
+            <label for="minPrice">Min</label>
+            <input type="number" name="minPrice" id="minPrice" value="<%= minValue %>" min="0" placeholder="₹">
+        </div>
+
+        <div class="filter-field compact">
+            <label for="maxPrice">Max</label>
+            <input type="number" name="maxPrice" id="maxPrice" value="<%= maxValue %>" min="0" placeholder="₹">
+        </div>
+
+        <div class="filter-field">
+            <label for="sort">Sort</label>
+            <select name="sort" id="sort">
+                <option value="" <%= selectedSort === "" ? "selected" : "" %>>Recommended</option>
+                <option value="price-asc" <%= selectedSort === "price-asc" ? "selected" : "" %>>Price low to high</option>
+                <option value="price-desc" <%= selectedSort === "price-desc" ? "selected" : "" %>>Price high to low</option>
+                <option value="newest" <%= selectedSort === "newest" ? "selected" : "" %>>Newest</option>
+            </select>
+        </div>
+
+        <button class="btn btn-danger filter-action" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Search
         </button>
 
-        <!-- Collapsible Filter Section -->
-        <div id="filterCollapse" class="collapse show">
-            <div id="filter">
-                <div class="icons">
-                    <div class="filters">
-                        <i class="fa-solid fa-fire"></i>
-                        <p>Trending</p>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/rooms">
-                            <i class="fa-solid fa-bed"></i>
-                            <p>Rooms</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/iconic cities">
+        <% if (searchValue || selectedCategory !== "all" || minValue || maxValue || selectedSort) { %>
+            <a href="/listings" class="btn btn-outline-secondary filter-reset">Reset</a>
+        <% } %>
+    </form>
+</section>
 
-                            <i class="fa-solid fa-city"></i>
-                            <p>Iconic Cities</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/mountains">
+<section class="quick-categories" aria-label="Popular categories">
+    <% const quickCategories = [
+        ["all", "fa-fire", "Trending"],
+        ["rooms", "fa-bed", "Rooms"],
+        ["iconic cities", "fa-city", "Cities"],
+        ["mountains", "fa-mountain", "Mountains"],
+        ["castles", "fa-fort-awesome", "Castles"],
+        ["amazing pool", "fa-person-swimming", "Pools"],
+        ["camping", "fa-campground", "Camping"],
+        ["farms", "fa-tractor", "Farms"],
+        ["arctic", "fa-snowflake", "Arctic"],
+        ["domes", "fa-igloo", "Domes"],
+        ["ships", "fa-ship", "Ships"]
+    ]; %>
+    <% for (let item of quickCategories) { %>
+        <a class="quick-category <%= selectedCategory === item[0] ? "active" : "" %>" href="/listings<%= item[0] === "all" ? "" : `?category=${encodeURIComponent(item[0])}` %>">
+            <i class="fa-solid <%= item[1] %>"></i>
+            <span><%= item[2] %></span>
+        </a>
+    <% } %>
+</section>
 
-                            <i class="fa-solid fa-mountain"></i>
-                            <p>Mountains</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/castles">
+<div class="results-meta">
+    <p>
+        <strong><%= listings.length %></strong>
+        <%= listings.length === 1 ? "stay" : "stays" %> found
+        <% if (searchValue) { %>
+            for "<%= searchValue %>"
+        <% } %>
+    </p>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="flexSwitchCheckReverse">
+        <label class="form-check-label" for="flexSwitchCheckReverse">Show total with GST</label>
+    </div>
+</div>
 
-                            <i class="fa-brands fa-fort-awesome"></i>
-                            <p>Castles</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/amazing pool">
-
-                            <i class="fa-solid fa-person-swimming"></i>
-                            <p>Amazing Pool</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/camping">
-
-                            <i class="fa-solid fa-campground"></i>
-                            <p>Camping</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/farms">
-
-                            <i class="fa-solid fa-tractor"></i>
-                            <p>Farms</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/arctic">
-
-                            <i class="fa-solid fa-snowflake"></i>
-                            <p>Arctic</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/iconic cities">
-
-                            <i class="fa-solid fa-igloo"></i>
-                            <p>Domes</p>
-                        </a>
-                    </div>
-                    <div class="filters">
-                        <a href="/listings/category/iconic cities">
-
-                            <i class="fa-solid fa-ship"></i>
-                            <p>Ships</p>
-                        </a>
-                    </div>
-                </div>
-                <div class="text-toggle">
-                    <div class="form-check form-switch form-check-reverse">
-                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckReverse">
-                        <label class="form-check-label" for="flexSwitchCheckReverse">Display total after Taxes</label>
-                    </div>
-                </div>
-            </div>
+<div class="listing-grid">
+    <% if (listings.length === 0) { %>
+        <div class="empty-state">
+            <i class="fa-regular fa-compass"></i>
+            <h3>No listings found</h3>
+            <p>Try a different destination, category, or price range.</p>
+            <a href="/listings" class="btn btn-dark">View all listings</a>
         </div>
-
-
-        <div class=" row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
-            <% if (listings.length===0) { %>
-                <h4 class="text-center">
-                    No listings found
-                    <% if (typeof q !=="undefined" ) { %>
-                        for "<%= q %>"
-                            <% } else if (typeof category !=="undefined" ) { %>
-                                in "<%= category %>"
-                                    <% } %>
-                </h4>
-                <% } else { %>
-                    <% for (let listing of listings) { %>
-                        <a href="/listings/<%=listing._id%>" class="text-decoration-none text-dark">
-                            <div class="col d-flex justify-content-center">
-                                <div class="card listing-card" style="width: 18rem;">
-                                    <img src="<%=listing.image.url%>" class="card-img-top" alt="listing_image">
-                                    <div class="card-img-overlay"></div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <%= listing.title %>
-                                        </h5>
-                                        <p class="card-text">
-                                            <% if(listing.price) { %>
-                                                &#8377; <%= listing.price.toLocaleString("en-IN") %>/night
-                                                    <i class="text-info">&nbsp; +18% GST</i>
-                                                    <% } %>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+    <% } else { %>
+        <% for (let listing of listings) { %>
+            <% const ratingCount = listing.reviews ? listing.reviews.length : 0; %>
+            <% const avgRating = ratingCount ? (listing.reviews.reduce((sum, review) => sum + review.rating, 0) / ratingCount).toFixed(1) : null; %>
+            <% const totalPrice = listing.price ? Math.round(listing.price * 1.18).toLocaleString("en-IN") : null; %>
+            <a href="/listings/<%= listing._id %>" class="listing-link">
+                <article class="listing-card">
+                    <div class="listing-image-wrap">
+                        <img src="<%= listing.image && listing.image.url ? listing.image.url : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80" %>" class="card-img-top" alt="<%= listing.title %>">
+                        <% if (listing.category) { %>
+                            <span class="category-pill"><%= listing.category %></span>
                         <% } %>
+                    </div>
+                    <div class="listing-card-body">
+                        <div>
+                            <h2><%= listing.title %></h2>
+                            <p class="listing-location">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <%= listing.location %><%= listing.country ? `, ${listing.country}` : "" %>
+                            </p>
+                        </div>
+                        <div class="rating-chip">
+                            <i class="fa-solid fa-star"></i>
+                            <span><%= avgRating || "New" %></span>
+                        </div>
+                    </div>
+                    <div class="listing-price-row">
+                        <p>
+                            <% if (listing.price) { %>
+                                <strong>₹<%= listing.price.toLocaleString("en-IN") %></strong>
+                                <span>/ night</span>
+                                <span class="text-info gst-total">₹<%= totalPrice %> incl. GST</span>
+                            <% } else { %>
+                                <strong>Price on request</strong>
                             <% } %>
-        </div>
-
-    </body>
+                        </p>
+                        <span><%= ratingCount %> <%= ratingCount === 1 ? "review" : "reviews" %></span>
+                    </div>
+                </article>
+            </a>
+        <% } %>
+    <% } %>
+</div>

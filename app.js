@@ -1,6 +1,10 @@
 const express = require("express");
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const app = express();
 const mongoose = require("mongoose");
+const dns = require("dns");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -27,14 +31,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 const dbUrl = process.env.ATLASDB_URL;
-// const dbUrl = 'mongodb://127.0.0.1:27017/wanderlust';
 
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+dns.setDefaultResultOrder("ipv4first");
 
 mongoose
   .connect(dbUrl)
   .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.log("MongoDB connection error:", err));
+  .catch((err) => {
+    console.error("MongoDB connection error:", err.message);
+    console.log("⚠️  Make sure MongoDB is running: Open PowerShell and run 'mongod'");
+  });
 
+
+async function main() {
+  await mongoose.connect(dbUrl);
+}
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   crypto: {
@@ -81,31 +93,8 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser = req.user;
-  console.log(req.user);
+  res.locals.currUser = req.user || null;  // Ensure currUser is always defined
   next();
-});
-
-
-app.get("/listings/search", async (req, res) => {
-  const { q } = req.query;
-
-  try {
-    // Case-insensitive search using regex across multiple fields
-    const listings = await Listing.find({
-      $or: [
-        { title: { $regex: q, $options: "i" } },
-        { location: { $regex: q, $options: "i" } },
-        { category: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-      ],
-    });
-
-    res.render("listing/index", { listings, q });
-  } catch (err) {
-    console.error("Search Error:", err);
-    res.status(500).send("Internal Server Error");
-  }
 });
 
 app.get("/", (req, res) => {
@@ -119,17 +108,6 @@ app.use("/", userRouter);
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Something went wrong!" } = err;
   res.status(statusCode).render("error", { message });
-});
-
-app.get("/listings/category/:category", async (req, res) => {
-  try {
-    const { category } = req.params;
-    const listings = await Listing.find({ category });
-    res.render("listing/index", { listings });
-  } catch (e) {
-    console.error("Error fetching category listings:", e);
-    res.status(500).send("Server Error");
-  }
 });
 
 // Server start

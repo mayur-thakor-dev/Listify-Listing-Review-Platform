@@ -1,7 +1,7 @@
 const User = require("../model/user");
 
 module.exports.renderSignup = (req, res) => {
-  res.render("./user/signup.ejs");
+  res.render("./user/signup.ejs", { currUser: res.locals.currUser });
 };
 
 module.exports.signup = async (req, res) => {
@@ -26,7 +26,7 @@ module.exports.signup = async (req, res) => {
 };
 
 module.exports.renderLoginPage = (req, res) => {
-  res.render("./user/login.ejs");
+  res.render("./user/login.ejs", { currUser: res.locals.currUser });
 };
 
 module.exports.login = async (req, res) => {
